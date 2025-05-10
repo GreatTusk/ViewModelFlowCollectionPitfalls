@@ -9,16 +9,6 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class UiChangesViewModel : ViewModel() {
-    private val _oldWay = MutableStateFlow(0)
-    val oldWay = _oldWay.onStart {
-        viewModelScope.launch {
-            currentNumber.collect()
-        }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(2000L),
-        0
-    )
 
     private val numbers = flow {
         while (true) {
@@ -28,6 +18,7 @@ class UiChangesViewModel : ViewModel() {
     }
 
     val correctWay = numbers
+        .distinctUntilChanged()
         .onEach { Log.i("UiChangesViewModel", "Emitted new number $it") }
         .stateIn(
             viewModelScope,
@@ -35,11 +26,21 @@ class UiChangesViewModel : ViewModel() {
             0
         )
 
+    private val _wrongWay = MutableStateFlow(0)
+    val wrongWay = _wrongWay.onStart {
+        viewModelScope.launch {
+            currentNumber.collect()
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(2000L),
+        0
+    )
 
     private val currentNumber = numbers
         .distinctUntilChanged()
         .onEach { number ->
             Log.i("UiChangesViewModel", "Emitted new number $number")
-            _oldWay.update { number }
+            _wrongWay.update { number }
         }
 }
