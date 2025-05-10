@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ViewModelUiStateTheme {
+                // Change this between correctWay and wrongWay to compare their behaviors
                 val number by viewModel.correctWay.collectAsStateWithLifecycle()
 
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
