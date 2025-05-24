@@ -15,7 +15,7 @@ A common mistake is to launch a coroutine within `viewModelScope` to collect a f
 
 In this project, `UiChangesViewModel.kt` showcases two approaches:
 
-1.  **`wrongWay` (The Pitfall):**
+1.  **`wrongWay`:**
     This `StateFlow` is populated by launching a coroutine in `viewModelScope` to collect an underlying `numbers` flow.
 
     ```kotlin
@@ -40,7 +40,7 @@ In this project, `UiChangesViewModel.kt` showcases two approaches:
     ```
     If you run the app, put it in the background, and observe Logcat for "UiChangesViewModel", you'll see that `currentNumber` (and thus `_wrongWay`) continues to emit and process new numbers. This is because the `viewModelScope.launch` block in `onStart` is not tied to UI visibility.
 
-2.  **`correctWay` (The Solution):**
+2.  **`correctWay`:**
     This `StateFlow` uses the `stateIn` operator with `SharingStarted.WhileSubscribed()`. This operator is lifecycle-aware. The upstream flow (`numbers`) will only be collected when there's at least one active subscriber (collector) from the UI. When the UI goes to the background and stops collecting, the upstream flow collection will also stop after the configured timeout (`2000L` in this case).
 
     ```kotlin
